@@ -16,7 +16,7 @@ class MainViewController: BaseViewController {
     let currentTemp = UILabel()
     let todayView = UIView()
     let todayScrollView = UIScrollView()
-    let todayContentView = UIView()
+    let todayContentView = UIStackView()
     let weekView = UIView()
     let weekScrollView = UIScrollView()
     let tabBarView = UIView()
@@ -29,6 +29,28 @@ class MainViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        weekTableView.delegate = self
+        weekTableView.dataSource = self
+        weekTableView.register(WeekTableViewCell.self, forCellReuseIdentifier: WeekTableViewCell.id)
+        weekTableView.rowHeight = 50
+        
+        addToStack()
+        addToStack()
+        addToStack()
+        addToStack()
+        addToStack()
+        addToStack()
+    }
+    func addToStack() {
+        let label = UILabel()
+        todayContentView.addArrangedSubview(label)
+        label.snp.makeConstraints { make in
+            make.height.equalToSuperview()
+            make.width.equalTo(100)
+        }
+        label.backgroundColor = .gray
+        label.text = "TEST"
         
     }
     override func configureHierarchy() {
@@ -53,7 +75,8 @@ class MainViewController: BaseViewController {
             make.bottom.equalTo(view).offset(-60)
         }
         contentView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalToSuperview().offset(30)
+            make.horizontalEdges.bottom.equalToSuperview()
             make.width.equalToSuperview()
         }
         regionName.snp.makeConstraints { make in
@@ -71,11 +94,12 @@ class MainViewController: BaseViewController {
         }
         weekView.snp.makeConstraints { make in
             make.top.equalTo(todayView.snp.bottom).offset(20)
-            make.height.equalTo(550)
+            make.height.equalTo(300)
             make.horizontalEdges.bottom.equalTo(contentView.safeAreaLayoutGuide).inset(10)
         }
         todayViewTitle.snp.makeConstraints { make in
             make.top.left.equalToSuperview().inset(10)
+            make.height.equalTo(20)
         }
         todayScrollView.snp.makeConstraints { make in
             make.top.equalTo(todayViewTitle.snp.bottom).offset(10)
@@ -83,7 +107,7 @@ class MainViewController: BaseViewController {
         }
         todayContentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.size.equalToSuperview()
+            make.height.equalToSuperview()
         }
         weekViewTitle.snp.makeConstraints { make in
             make.top.left.equalToSuperview().inset(10)
@@ -104,7 +128,7 @@ class MainViewController: BaseViewController {
         }
     }
     override func configureUI() {
-        contentView.backgroundColor = .systemTeal
+        scrollView.backgroundColor = .systemTeal
         tabBarView.backgroundColor = .systemOrange
         
         regionName.textColor = .white
@@ -115,18 +139,33 @@ class MainViewController: BaseViewController {
         currentTemp.font = .boldSystemFont(ofSize: 80)
         
         todayView.backgroundColor = .brown
-        todayViewTitle.backgroundColor = .systemTeal
         todayViewTitle.text = "3시간 간격의 일기예보"
         todayScrollView.backgroundColor = .systemRed
         todayContentView.backgroundColor = .systemGreen
         
         weekView.backgroundColor = .brown
-        weekViewTitle.backgroundColor = .systemTeal
         weekViewTitle.text = "5일 간의 일기예보"
         weekTableView.backgroundColor = .lightGray
         
         mapButton.setImage(UIImage(systemName: "map"), for: .normal)
         searchButton.setImage(UIImage(systemName: "list.bullet"), for: .normal)
+        
+        todayContentView.axis = .horizontal
+        todayContentView.spacing = 10
     }
 }
 
+extension MainViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 5
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: WeekTableViewCell.id) as! WeekTableViewCell
+        
+        return cell
+    }
+    
+    
+}
