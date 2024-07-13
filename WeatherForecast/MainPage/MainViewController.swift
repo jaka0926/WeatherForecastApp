@@ -27,20 +27,58 @@ class MainViewController: BaseViewController {
     let mapButton = UIButton()
     let searchButton = UIButton()
     
+    var list: [List] = []
+    
+    let calendar = Calendar.current
+    var today: [List] = []
+    var day2: [List] = []
+    var day3: [List] = []
+    var day4: [List] = []
+    var day5: [List] = []
+    lazy var dayList = [today, day2, day3, day4, day5]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        weekTableView.delegate = self
-        weekTableView.dataSource = self
-        weekTableView.register(WeekTableViewCell.self, forCellReuseIdentifier: WeekTableViewCell.id)
         weekTableView.rowHeight = 50
         
-        addToStack()
-        addToStack()
-        addToStack()
-        addToStack()
-        addToStack()
-        addToStack()
+        let group = DispatchGroup() //+1
+        
+        group.enter() //+1
+        DispatchQueue.global().async(group: group) {
+            OpenWeatherAPI.shared.weatherRequest(api: .weatherForecast) { json, error in
+                if let error = error {
+                    print(error) //사용자에게 상황 고지
+                }
+                else {
+                    guard let data = json else {return}
+                    self.list = data
+                }
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) { [self] in
+            print("List====", self.list.count)
+            self.weekTableView.reloadData()
+            
+            self.weekTableView.delegate = self
+            self.weekTableView.dataSource = self
+            self.weekTableView.register(WeekTableViewCell.self, forCellReuseIdentifier: WeekTableViewCell.id)
+        
+            today = self.list.filter { $0.dt_txt.contains(getDate.today) }
+            day2 = self.list.filter { $0.dt_txt.contains(getDate.day2) }
+            day3 = self.list.filter { $0.dt_txt.contains(getDate.day3) }
+            day4 = self.list.filter { $0.dt_txt.contains(getDate.day4) }
+            day5 = self.list.filter { $0.dt_txt.contains(getDate.day5) }
+            
+            self.addToStack()
+            self.addToStack()
+            self.addToStack()
+            self.addToStack()
+            self.addToStack()
+            self.addToStack()
+        }
     }
     func addToStack() {
         let label = UILabel()
@@ -161,11 +199,27 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: WeekTableViewCell.id) as! WeekTableViewCell
+        let data = dayList[indexPath.row]
+        let dateString = data.first?.dt_txt
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        guard let date = dateFormatter.date(from: dateString!) else {
+            print("Invalid date format")
+            fatalError()
+        }
+        dateFormatter.locale = Locale(identifier: "ko_KR")
+        dateFormatter.dateFormat = "EEEE"
+        
+        let day = dateFormatter.string(from: date)
+        cell.dayLabel.text = day
+        
+        let tempData = data.map { Int($0.main.temp.rounded()) }
+        print(indexPath.row, tempData)
+        cell.minTemp.text = "최저 \(tempData.min()!)°"
+        cell.maxTemp.text = "최고 \(tempData.max()!)°"
         
         return cell
     }
-    
-    
 }

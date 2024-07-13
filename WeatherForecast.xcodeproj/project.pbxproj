@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		CE58E3842C4170E900179554 /* WeekTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE58E3832C4170E900179554 /* WeekTableViewCell.swift */; };
+		CE58E3862C42B5ED00179554 /* APIKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE58E3852C42B5ED00179554 /* APIKey.swift */; };
+		CE58E3882C42B69B00179554 /* OpenWeatherAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE58E3872C42B69B00179554 /* OpenWeatherAPI.swift */; };
+		CE58E38A2C42BC2300179554 /* OpenWeatherRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE58E3892C42BC2300179554 /* OpenWeatherRequest.swift */; };
+		CE58E38C2C42E37C00179554 /* DateEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE58E38B2C42E37C00179554 /* DateEnum.swift */; };
+		CE58E38E2C42F14700179554 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = CE58E38D2C42F14700179554 /* .gitignore */; };
 		CE84716C2C3EBD22007012B8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE84716B2C3EBD22007012B8 /* AppDelegate.swift */; };
 		CE84716E2C3EBD22007012B8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE84716D2C3EBD22007012B8 /* SceneDelegate.swift */; };
 		CE8471702C3EBD22007012B8 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE84716F2C3EBD22007012B8 /* MainViewController.swift */; };
@@ -21,6 +26,11 @@
 
 /* Begin PBXFileReference section */
 		CE58E3832C4170E900179554 /* WeekTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekTableViewCell.swift; sourceTree = "<group>"; };
+		CE58E3852C42B5ED00179554 /* APIKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKey.swift; sourceTree = "<group>"; };
+		CE58E3872C42B69B00179554 /* OpenWeatherAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenWeatherAPI.swift; sourceTree = "<group>"; };
+		CE58E3892C42BC2300179554 /* OpenWeatherRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenWeatherRequest.swift; sourceTree = "<group>"; };
+		CE58E38B2C42E37C00179554 /* DateEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateEnum.swift; sourceTree = "<group>"; };
+		CE58E38D2C42F14700179554 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		CE8471682C3EBD22007012B8 /* WeatherForecast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeatherForecast.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE84716B2C3EBD22007012B8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CE84716D2C3EBD22007012B8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -48,6 +58,7 @@
 		CE84715F2C3EBD22007012B8 = {
 			isa = PBXGroup;
 			children = (
+				CE58E38D2C42F14700179554 /* .gitignore */,
 				CE84716A2C3EBD22007012B8 /* WeatherForecast */,
 				CE8471692C3EBD22007012B8 /* Products */,
 			);
@@ -79,6 +90,10 @@
 		CE84717F2C3EBFA6007012B8 /* MainPage */ = {
 			isa = PBXGroup;
 			children = (
+				CE58E3852C42B5ED00179554 /* APIKey.swift */,
+				CE58E38B2C42E37C00179554 /* DateEnum.swift */,
+				CE58E3892C42BC2300179554 /* OpenWeatherRequest.swift */,
+				CE58E3872C42B69B00179554 /* OpenWeatherAPI.swift */,
 				CE84716F2C3EBD22007012B8 /* MainViewController.swift */,
 				CE58E3832C4170E900179554 /* WeekTableViewCell.swift */,
 			);
@@ -151,6 +166,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE58E38E2C42F14700179554 /* .gitignore in Resources */,
 				CE8471752C3EBD24007012B8 /* Assets.xcassets in Resources */,
 				CE8471782C3EBD24007012B8 /* Base in Resources */,
 				CE8471732C3EBD22007012B8 /* Base in Resources */,
@@ -166,8 +182,12 @@
 			files = (
 				CE8471702C3EBD22007012B8 /* MainViewController.swift in Sources */,
 				CE8471812C3EBFBC007012B8 /* BaseViewController.swift in Sources */,
+				CE58E3882C42B69B00179554 /* OpenWeatherAPI.swift in Sources */,
 				CE84716C2C3EBD22007012B8 /* AppDelegate.swift in Sources */,
+				CE58E38C2C42E37C00179554 /* DateEnum.swift in Sources */,
 				CE58E3842C4170E900179554 /* WeekTableViewCell.swift in Sources */,
+				CE58E3862C42B5ED00179554 /* APIKey.swift in Sources */,
+				CE58E38A2C42BC2300179554 /* OpenWeatherRequest.swift in Sources */,
 				CE84716E2C3EBD22007012B8 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

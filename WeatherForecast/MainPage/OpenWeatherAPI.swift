@@ -5,4 +5,102 @@
 //  Created by Jaka on 2024-07-13.
 //
 
-import Foundation
+// MARK: - Weather
+struct Weather: Decodable {
+    let cod: String
+    let message, cnt: Int
+    let list: [List]
+    let city: City
+}
+
+// MARK: - City
+struct City: Decodable  {
+    let id: Int
+    let name: String
+    let coord: Coord
+    let country: String
+    let population, timezone, sunrise, sunset: Int
+}
+
+// MARK: - Coord
+struct Coord: Decodable  {
+    let lat: Double
+    let lon: Int
+}
+
+// MARK: - List
+struct List: Decodable  {
+    let dt: Int
+    let main: MainClass
+    let weather: [WeatherElement]
+    let clouds: Clouds
+    let wind: Wind
+    let visibility: Int
+    let pop: Double
+    //let rain: Rain?
+    let sys: Sys
+    let dt_txt: String
+}
+
+// MARK: - Clouds
+struct Clouds: Decodable  {
+    let all: Int
+}
+
+// MARK: - MainClass
+struct MainClass: Decodable  {
+    let temp, feels_like, temp_min, temp_max: Double
+    let pressure, sea_level, grnd_level, humidity: Int
+    let temp_kf: Double
+}
+
+// MARK: - Rain
+struct Rain: Decodable  {
+    let the3H: Double
+}
+
+// MARK: - Sys
+struct Sys: Decodable  {
+    let pod: String
+}
+
+// MARK: - WeatherElement
+struct WeatherElement: Decodable  {
+    let id: Int
+    let main: String
+    let description: String
+    //let icon: Icon
+}
+
+// MARK: - Wind
+struct Wind: Decodable  {
+    let speed: Double
+    let deg: Int
+    let gust: Double
+}
+
+import Alamofire
+
+class OpenWeatherAPI {
+    
+    static let shared = OpenWeatherAPI()
+    
+    func weatherRequest(api: OpenWeatherRequest, completionHandler: @escaping ([List]?, String?) -> Void) {
+        
+        AF.request(api.endpoint,
+                   method: api.method,
+                   parameters: api.parameter,
+                   encoding: URLEncoding(destination: .queryString))
+        .responseDecodable(of: Weather.self) { response in
+                
+            switch response.result {
+            case .success(let value):
+                print("SUCCESS")
+                completionHandler(value.list, nil)
+            case .failure(let error):
+                print("FAILURE", error)
+                completionHandler(nil, "잠시 후 다시 시도해주세요")
+            }
+        }
+    }
+}
