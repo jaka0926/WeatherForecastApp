@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import MapKit
 
 class MainViewController: BaseViewController {
 
@@ -14,6 +15,8 @@ class MainViewController: BaseViewController {
     let contentView = UIView()
     let regionName = UILabel()
     let currentTemp = UILabel()
+    let currentState = UILabel()
+//    let todayTemp = UILabel()
     let todayView = UIView()
     let todayScrollView = UIScrollView()
     let todayContentView = UIStackView()
@@ -26,8 +29,11 @@ class MainViewController: BaseViewController {
     let weekTableView = UITableView()
     let mapButton = UIButton()
     let searchButton = UIButton()
+    var mapView = MKMapView()
     
+    var currentWeatherData: CityList = CityList(id: 0, name: "Seoul", state: "", country: "", coord: Coordinations(lon: 127.0, lat: 37.583328))
     var list: [List] = []
+    var currentList: WeatherCurrent = WeatherCurrent(weather: [], main: MainClass(temp: 0))
     
     let calendar = Calendar.current
     var today: [List] = []
@@ -37,16 +43,40 @@ class MainViewController: BaseViewController {
     var day5: [List] = []
     lazy var dayList = [today, day2, day3, day4, day5]
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        print(#function)
+        dump(currentWeatherData)
+        let lat = currentWeatherData.coord.lat
+        let lon = currentWeatherData.coord.lon
+        DispatchQueue.global().async {
+            OpenWeatherAPI.shared.weatherCurrentRequest(api: .weatherCurrent(lat: lat, lon: lon)) { json, error in
+                if let error = error {
+                    print(error) //사용자에게 상황 고지
+                }
+                else {
+                    guard let data = json else {return}
+                    self.currentList = data
+                }
+                self.currentTemp.text = String(format: "%.0f", self.currentList.main.temp.rounded()) + "°"
+                self.currentState.text = self.currentList.weather.first?.description
+            }
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         weekTableView.rowHeight = 50
+        let lat = currentWeatherData.coord.lat
+        let lon = currentWeatherData.coord.lon
         
         let group = DispatchGroup() //+1
         
         group.enter() //+1
         DispatchQueue.global().async(group: group) {
-            OpenWeatherAPI.shared.weatherRequest(api: .weatherForecast) { json, error in
+            OpenWeatherAPI.shared.weatherForecastRequest(api: .weatherForecast(lat: lat, lon: lon)) { json, error in
                 if let error = error {
                     print(error) //사용자에게 상황 고지
                 }
@@ -57,6 +87,8 @@ class MainViewController: BaseViewController {
                 group.leave()
             }
         }
+        
+        
         
         group.notify(queue: .main) { [self] in
             print("List====", self.list.count)
@@ -72,12 +104,19 @@ class MainViewController: BaseViewController {
             day4 = self.list.filter { $0.dt_txt.contains(getDate.day4) }
             day5 = self.list.filter { $0.dt_txt.contains(getDate.day5) }
             
+            //dump(today)
             self.addToStack()
             self.addToStack()
             self.addToStack()
             self.addToStack()
             self.addToStack()
             self.addToStack()
+            
+            
+//            let tempData = today.map { Int($0.main.temp.rounded()) }
+//            print(tempData)
+//            todayTemp.text = "최고: \(tempData.max()!)° | 최저: \(String(format: "%.1f", tempData.min()!))°"
+            
         }
     }
     func addToStack() {
@@ -96,6 +135,8 @@ class MainViewController: BaseViewController {
             scrollView.addSubview(contentView)
                 contentView.addSubview(regionName)
                 contentView.addSubview(currentTemp)
+                contentView.addSubview(currentState)
+//                contentView.addSubview(todayTemp)
                 contentView.addSubview(todayView)
                     todayView.addSubview(todayViewTitle)
                     todayView.addSubview(todayScrollView)
@@ -103,6 +144,7 @@ class MainViewController: BaseViewController {
                 contentView.addSubview(weekView)
                     weekView.addSubview(weekViewTitle)
                     weekView.addSubview(weekTableView)
+                contentView.addSubview(mapView)
         view.addSubview(tabBarView)
             tabBarView.addSubview(mapButton)
             tabBarView.addSubview(searchButton)
@@ -110,11 +152,11 @@ class MainViewController: BaseViewController {
     override func configureLayout() {
         scrollView.snp.makeConstraints { make in
             make.top.horizontalEdges.equalToSuperview()
-            make.bottom.equalTo(view).offset(-60)
+            make.bottom.equalToSuperview().offset(-60)
         }
         contentView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(30)
-            make.horizontalEdges.bottom.equalToSuperview()
+            make.top.equalTo(scrollView).offset(10)
+            make.horizontalEdges.bottom.equalTo(scrollView)
             make.width.equalToSuperview()
         }
         regionName.snp.makeConstraints { make in
@@ -125,15 +167,23 @@ class MainViewController: BaseViewController {
             make.centerX.equalToSuperview()
             make.top.equalTo(regionName.snp.bottom).offset(10)
         }
+        currentState.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(currentTemp.snp.bottom).offset(5)
+        }
+//        todayTemp.snp.makeConstraints { make in
+//            make.centerX.equalToSuperview()
+//            make.top.equalTo(currentState.snp.bottom).offset(5)
+//        }
         todayView.snp.makeConstraints { make in
-            make.top.equalTo(currentTemp.snp.bottom).offset(50)
+            make.top.equalTo(currentState.snp.bottom).offset(50)
             make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(10)
             make.height.equalTo(200)
         }
         weekView.snp.makeConstraints { make in
             make.top.equalTo(todayView.snp.bottom).offset(20)
-            make.height.equalTo(300)
-            make.horizontalEdges.bottom.equalTo(contentView.safeAreaLayoutGuide).inset(10)
+            make.height.equalTo(290)
+            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(10)
         }
         todayViewTitle.snp.makeConstraints { make in
             make.top.left.equalToSuperview().inset(10)
@@ -149,6 +199,7 @@ class MainViewController: BaseViewController {
         }
         weekViewTitle.snp.makeConstraints { make in
             make.top.left.equalToSuperview().inset(10)
+            make.height.equalTo(20)
         }
         weekTableView.snp.makeConstraints { make in
             make.top.equalTo(weekViewTitle.snp.bottom).offset(10)
@@ -164,32 +215,55 @@ class MainViewController: BaseViewController {
         searchButton.snp.makeConstraints { make in
             make.right.top.equalToSuperview().inset(20)
         }
+        mapView.snp.makeConstraints { make in
+            make.top.equalTo(weekView.snp.bottom).offset(10)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(10)
+            make.height.equalTo(300)
+            make.bottom.equalTo(contentView).offset(-10)
+        }
     }
     override func configureUI() {
-        scrollView.backgroundColor = .systemTeal
+        scrollView.backgroundColor = .systemIndigo
         tabBarView.backgroundColor = .systemOrange
         
         regionName.textColor = .white
         regionName.text = "Seoul"
         regionName.font = .boldSystemFont(ofSize: 40)
         
-        currentTemp.text = "23.4°"
+        currentTemp.text = ""
         currentTemp.font = .boldSystemFont(ofSize: 80)
+        
+        currentState.text = ""
+        currentState.font = .boldSystemFont(ofSize: 20)
         
         todayView.backgroundColor = .brown
         todayViewTitle.text = "3시간 간격의 일기예보"
         todayScrollView.backgroundColor = .systemRed
         todayContentView.backgroundColor = .systemGreen
         
-        weekView.backgroundColor = .brown
         weekViewTitle.text = "5일 간의 일기예보"
-        weekTableView.backgroundColor = .lightGray
+        weekView.layer.cornerRadius = 5
+        weekView.layer.borderWidth = 1
+        weekView.layer.borderColor = UIColor.white.cgColor
         
         mapButton.setImage(UIImage(systemName: "map"), for: .normal)
         searchButton.setImage(UIImage(systemName: "list.bullet"), for: .normal)
         
         todayContentView.axis = .horizontal
         todayContentView.spacing = 10
+        
+        let annotation = MKPointAnnotation()
+        let coordinate = CLLocationCoordinate2D(latitude: 37.583328, longitude: 127.0)
+        annotation.coordinate = coordinate
+        annotation.title = "서울"
+        mapView.addAnnotation(annotation)
+        mapView.setRegion(MKCoordinateRegion(center: coordinate, span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)), animated: true)
+        
+        searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
+    }
+    @objc func searchButtonClicked() {
+        let vc = SearchViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
@@ -210,13 +284,13 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
             fatalError()
         }
         dateFormatter.locale = Locale(identifier: "ko_KR")
-        dateFormatter.dateFormat = "EEEE"
+        dateFormatter.dateFormat = "E"
         
         let day = dateFormatter.string(from: date)
-        cell.dayLabel.text = day
+        cell.dayLabel.text = indexPath.row == 0 ? "오늘" : day
         
         let tempData = data.map { Int($0.main.temp.rounded()) }
-        print(indexPath.row, tempData)
+        //print(indexPath.row, tempData)
         cell.minTemp.text = "최저 \(tempData.min()!)°"
         cell.maxTemp.text = "최고 \(tempData.max()!)°"
         

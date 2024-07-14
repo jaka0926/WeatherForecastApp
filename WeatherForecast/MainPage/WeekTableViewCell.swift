@@ -42,12 +42,9 @@ class WeekTableViewCell: UITableViewCell {
             make.verticalEdges.equalToSuperview()
         }
         
-        contentView.backgroundColor = .darkGray
-        dayLabel.text = "월요일"
+        contentView.backgroundColor = .systemIndigo
         dayLabel.font = .systemFont(ofSize: 20)
-        minTemp.text = "최저 -5.4°"
         minTemp.font = .systemFont(ofSize: 20)
-        maxTemp.text = "최고 29.6°"
         maxTemp.font = .systemFont(ofSize: 20)
         weatherImage.image = UIImage(systemName: "cloud.rain.fill")
         weatherImage.tintColor = .white

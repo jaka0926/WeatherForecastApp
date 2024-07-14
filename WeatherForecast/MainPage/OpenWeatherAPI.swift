@@ -4,6 +4,28 @@
 //
 //  Created by Jaka on 2024-07-13.
 //
+// MARK: - WeatherCurrent
+struct WeatherCurrent: Decodable {
+    //let coord: Coord
+    let weather: [WeatherData]
+    //let base: String
+    let main: MainClass
+//    let visibility: Int
+//    let wind: Wind
+//    let rain: Rain
+//    let clouds: Clouds
+//    let dt: Int
+//    let sys: Sys
+//    let timezone, id: Int
+//    let name: String
+//    let cod: Int
+}
+
+// MARK: - Weather
+struct WeatherData: Decodable {
+    let id: Int
+    let main, description, icon: String
+}
 
 // MARK: - Weather
 struct Weather: Decodable {
@@ -49,9 +71,10 @@ struct Clouds: Decodable  {
 
 // MARK: - MainClass
 struct MainClass: Decodable  {
-    let temp, feels_like, temp_min, temp_max: Double
-    let pressure, sea_level, grnd_level, humidity: Int
-    let temp_kf: Double
+    let temp: Double
+    //let feels_like, temp_min, temp_max: Double
+    //let pressure, sea_level, grnd_level, humidity: Int
+    //let temp_kf: Double?
 }
 
 // MARK: - Rain
@@ -85,11 +108,11 @@ class OpenWeatherAPI {
     
     static let shared = OpenWeatherAPI()
     
-    func weatherRequest(api: OpenWeatherRequest, completionHandler: @escaping ([List]?, String?) -> Void) {
+    func weatherForecastRequest(api: OpenWeatherRequest, completionHandler: @escaping ([List]?, String?) -> Void) {
         
         AF.request(api.endpoint,
                    method: api.method,
-                   parameters: api.parameter,
+                   parameters: api.parameters,
                    encoding: URLEncoding(destination: .queryString))
         .responseDecodable(of: Weather.self) { response in
                 
@@ -99,6 +122,24 @@ class OpenWeatherAPI {
                 completionHandler(value.list, nil)
             case .failure(let error):
                 print("FAILURE", error)
+                completionHandler(nil, "잠시 후 다시 시도해주세요")
+            }
+        }
+    }
+    func weatherCurrentRequest(api: OpenWeatherRequest, completionHandler: @escaping (WeatherCurrent?, String?) -> Void) {
+        
+        AF.request(api.endpoint,
+                   method: api.method,
+                   parameters: api.parameters,
+                   encoding: URLEncoding(destination: .queryString))
+        .responseDecodable(of: WeatherCurrent.self) { response in
+                
+            switch response.result {
+            case .success(let value):
+                print("SUCCESS==CURRENT")
+                completionHandler(value, nil)
+            case .failure(let error):
+                print("FAILURE=CURRENT", error)
                 completionHandler(nil, "잠시 후 다시 시도해주세요")
             }
         }

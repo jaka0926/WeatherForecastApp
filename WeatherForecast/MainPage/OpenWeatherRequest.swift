@@ -8,9 +8,10 @@
 import Alamofire
 import Foundation
 
+
 enum OpenWeatherRequest {
-    case weatherCurrent
-    case weatherForecast
+    case weatherCurrent(lat: Double, lon: Double)
+    case weatherForecast(lat: Double, lon: Double)
     
     var baseURL: String {
         return "https://api.openweathermap.org/data/2.5/"
@@ -29,7 +30,16 @@ enum OpenWeatherRequest {
         return .get
     }
     
-    var parameter: Parameters {
-        return ["lat":"37.5833", "lon":"127.0", "appid": APIKey.weather, "units": "metric", "lang": "kr"]
+    var parameters: Parameters {
+        switch self {
+        case .weatherCurrent(let lat, let lon), .weatherForecast(let lat, let lon):
+            return [
+                "lat": "\(lat)",
+                "lon": "\(lon)",
+                "appid": APIKey.weather,
+                "units": "metric",
+                "lang": "kr"
+            ]
+        }
     }
 }

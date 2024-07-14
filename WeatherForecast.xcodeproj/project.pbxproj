@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE22CD332C43E58200A69CC8 /* CityList.json in Resources */ = {isa = PBXBuildFile; fileRef = CE22CD322C43E58200A69CC8 /* CityList.json */; };
+		CE22CD362C441AFC00A69CC8 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE22CD352C441AFC00A69CC8 /* SearchViewController.swift */; };
+		CE22CD382C442A8500A69CC8 /* SearchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE22CD372C442A8500A69CC8 /* SearchTableViewCell.swift */; };
+		CE22CD3B2C4436CC00A69CC8 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = CE22CD3A2C4436CC00A69CC8 /* IQKeyboardManagerSwift */; };
 		CE58E3842C4170E900179554 /* WeekTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE58E3832C4170E900179554 /* WeekTableViewCell.swift */; };
 		CE58E3862C42B5ED00179554 /* APIKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE58E3852C42B5ED00179554 /* APIKey.swift */; };
 		CE58E3882C42B69B00179554 /* OpenWeatherAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE58E3872C42B69B00179554 /* OpenWeatherAPI.swift */; };
@@ -25,6 +29,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CE22CD322C43E58200A69CC8 /* CityList.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = CityList.json; sourceTree = "<group>"; };
+		CE22CD352C441AFC00A69CC8 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		CE22CD372C442A8500A69CC8 /* SearchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTableViewCell.swift; sourceTree = "<group>"; };
 		CE58E3832C4170E900179554 /* WeekTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekTableViewCell.swift; sourceTree = "<group>"; };
 		CE58E3852C42B5ED00179554 /* APIKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKey.swift; sourceTree = "<group>"; };
 		CE58E3872C42B69B00179554 /* OpenWeatherAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenWeatherAPI.swift; sourceTree = "<group>"; };
@@ -49,12 +56,22 @@
 			files = (
 				CE8471842C3EC558007012B8 /* Alamofire in Frameworks */,
 				CE8471872C3EC566007012B8 /* SnapKit in Frameworks */,
+				CE22CD3B2C4436CC00A69CC8 /* IQKeyboardManagerSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CE22CD342C441AE400A69CC8 /* SearchPage */ = {
+			isa = PBXGroup;
+			children = (
+				CE22CD352C441AFC00A69CC8 /* SearchViewController.swift */,
+				CE22CD372C442A8500A69CC8 /* SearchTableViewCell.swift */,
+			);
+			path = SearchPage;
+			sourceTree = "<group>";
+		};
 		CE84715F2C3EBD22007012B8 = {
 			isa = PBXGroup;
 			children = (
@@ -75,6 +92,7 @@
 		CE84716A2C3EBD22007012B8 /* WeatherForecast */ = {
 			isa = PBXGroup;
 			children = (
+				CE22CD342C441AE400A69CC8 /* SearchPage */,
 				CE84717F2C3EBFA6007012B8 /* MainPage */,
 				CE84716B2C3EBD22007012B8 /* AppDelegate.swift */,
 				CE84716D2C3EBD22007012B8 /* SceneDelegate.swift */,
@@ -83,6 +101,7 @@
 				CE8471762C3EBD24007012B8 /* LaunchScreen.storyboard */,
 				CE8471792C3EBD24007012B8 /* Info.plist */,
 				CE8471802C3EBFBB007012B8 /* BaseViewController.swift */,
+				CE22CD322C43E58200A69CC8 /* CityList.json */,
 			);
 			path = WeatherForecast;
 			sourceTree = "<group>";
@@ -119,6 +138,7 @@
 			packageProductDependencies = (
 				CE8471832C3EC558007012B8 /* Alamofire */,
 				CE8471862C3EC566007012B8 /* SnapKit */,
+				CE22CD3A2C4436CC00A69CC8 /* IQKeyboardManagerSwift */,
 			);
 			productName = WeatherForecast;
 			productReference = CE8471682C3EBD22007012B8 /* WeatherForecast.app */;
@@ -151,6 +171,7 @@
 			packageReferences = (
 				CE8471822C3EC558007012B8 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				CE8471852C3EC566007012B8 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				CE22CD392C4436CC00A69CC8 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
 			);
 			productRefGroup = CE8471692C3EBD22007012B8 /* Products */;
 			projectDirPath = "";
@@ -166,6 +187,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE22CD332C43E58200A69CC8 /* CityList.json in Resources */,
 				CE58E38E2C42F14700179554 /* .gitignore in Resources */,
 				CE8471752C3EBD24007012B8 /* Assets.xcassets in Resources */,
 				CE8471782C3EBD24007012B8 /* Base in Resources */,
@@ -180,9 +202,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE22CD362C441AFC00A69CC8 /* SearchViewController.swift in Sources */,
 				CE8471702C3EBD22007012B8 /* MainViewController.swift in Sources */,
 				CE8471812C3EBFBC007012B8 /* BaseViewController.swift in Sources */,
 				CE58E3882C42B69B00179554 /* OpenWeatherAPI.swift in Sources */,
+				CE22CD382C442A8500A69CC8 /* SearchTableViewCell.swift in Sources */,
 				CE84716C2C3EBD22007012B8 /* AppDelegate.swift in Sources */,
 				CE58E38C2C42E37C00179554 /* DateEnum.swift in Sources */,
 				CE58E3842C4170E900179554 /* WeekTableViewCell.swift in Sources */,
@@ -429,6 +453,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		CE22CD392C4436CC00A69CC8 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hackiftekhar/IQKeyboardManager.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.3;
+			};
+		};
 		CE8471822C3EC558007012B8 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
@@ -448,6 +480,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		CE22CD3A2C4436CC00A69CC8 /* IQKeyboardManagerSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE22CD392C4436CC00A69CC8 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
+			productName = IQKeyboardManagerSwift;
+		};
 		CE8471832C3EC558007012B8 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CE8471822C3EC558007012B8 /* XCRemoteSwiftPackageReference "Alamofire" */;
