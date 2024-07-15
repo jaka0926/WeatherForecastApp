@@ -42,7 +42,7 @@ class WeekTableViewCell: UITableViewCell {
             make.verticalEdges.equalToSuperview()
         }
         
-        contentView.backgroundColor = .systemIndigo
+        contentView.backgroundColor = .systemTeal
         dayLabel.font = .systemFont(ofSize: 20)
         minTemp.font = .systemFont(ofSize: 20)
         maxTemp.font = .systemFont(ofSize: 20)

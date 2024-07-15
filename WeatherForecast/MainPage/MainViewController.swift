@@ -29,7 +29,6 @@ class MainViewController: BaseViewController {
     let searchButton = UIButton()
     var mapView = MKMapView()
     
-
     var currentWeatherData: CityList = CityList(id: 0, name: "Seoul", state: "", country: "", coord: Coordinations(lon: 127.0, lat: 37.583328))
     var list: [List] = []
     var currentList: WeatherCurrent = WeatherCurrent(weather: [], main: MainClass(temp: 0))
@@ -48,35 +47,40 @@ class MainViewController: BaseViewController {
         let currentLat = currentWeatherData.coord.lat
         let currentLon = currentWeatherData.coord.lon
         
-        DispatchQueue.global().async { [self] in
-            OpenWeatherAPI.shared.weatherCurrentRequest(api: .weatherCurrent(lat: currentLat, lon: currentLon)) { json, error in
+        DispatchQueue.global().async {
+            OpenWeatherAPI.shared.weatherCurrentRequest(api: .weatherCurrent(lat: currentLat, lon: currentLon)) { [self] json, error in
                 if let error = error {
                     print(error) //사용자에게 상황 고지
                 }
                 else {
                     guard let data = json else {return}
-                    self.currentList = data
+                    currentList = data
                 }
-                self.regionName.text = self.currentWeatherData.name
-                self.currentTemp.text = String(format: "%.0f", self.currentList.main.temp.rounded()) + "°"
-                self.currentState.text = self.currentList.weather.first?.description
+                regionName.text = self.currentWeatherData.name
+                currentTemp.text = String(format: "%.0f", self.currentList.main.temp.rounded()) + "°"
+                currentState.text = currentList.weather.first?.description
             }
             
             OpenWeatherAPI.shared.weatherForecastRequest(api: .weatherForecast(lat: currentLat, lon: currentLon)) { [self] json, error in
                 
-                //print(lat, lon)
                 if let error = error {
                     print(error) //사용자에게 상황 고지
                 }
                 else {
                     guard let data = json else {return}
-                    self.list = data
+                    list = data
                 }
-                today = self.list.filter { $0.dt_txt.contains(getDate.today) }
-                day2 = self.list.filter { $0.dt_txt.contains(getDate.day2) }
-                day3 = self.list.filter { $0.dt_txt.contains(getDate.day3) }
-                day4 = self.list.filter { $0.dt_txt.contains(getDate.day4) }
-                day5 = self.list.filter { $0.dt_txt.contains(getDate.day5) }
+                for data in list {
+                    dump(data)
+                    
+                    self.addToStack(data)
+                }
+                
+                today = list.filter { $0.dt_txt.contains(getDate.today) }
+                day2 = list.filter { $0.dt_txt.contains(getDate.day2) }
+                day3 = list.filter { $0.dt_txt.contains(getDate.day3) }
+                day4 = list.filter { $0.dt_txt.contains(getDate.day4) }
+                day5 = list.filter { $0.dt_txt.contains(getDate.day5) }
                 dayList = [today, day2, day3, day4, day5]
                 weekTableView.reloadData()
                 
@@ -104,24 +108,42 @@ class MainViewController: BaseViewController {
                 self.weekTableView.register(WeekTableViewCell.self, forCellReuseIdentifier: WeekTableViewCell.id)
             }
         }
-        
-        addToStack()
-        addToStack()
-        addToStack()
-        addToStack()
-        addToStack()
-        addToStack()
-            
     }
-    func addToStack() {
-        let label = UILabel()
-        todayContentView.addArrangedSubview(label)
-        label.snp.makeConstraints { make in
-            make.height.equalToSuperview()
-            make.width.equalTo(100)
+    func addToStack(_ listItem: List) {
+        let singleView = UIView()
+        let time = UILabel()
+        let weatherIcon = UIImageView()
+        let temp = UILabel()
+        singleView.addSubview(time)
+        singleView.addSubview(weatherIcon)
+        singleView.addSubview(temp)
+        todayContentView.addArrangedSubview(singleView)
+        
+        singleView.snp.makeConstraints { make in
+            make.width.equalTo(70)
         }
-        label.backgroundColor = .gray
-        label.text = "TEST"
+        time.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(20)
+            make.horizontalEdges.equalToSuperview()
+        }
+        weatherIcon.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.size.equalTo(40)
+        }
+        temp.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-20)
+        }
+        let rawDate = listItem.dt_txt
+        let startIndex = rawDate.index(rawDate.startIndex, offsetBy: 11)
+        let endIndex = rawDate.index(rawDate.startIndex, offsetBy: 13)
+        let hourSubstring = rawDate[startIndex..<endIndex]
+        time.text = "\(hourSubstring)시"
+        time.textAlignment = .center
+        weatherIcon.image = UIImage(systemName: "sun.max.fill")
+        weatherIcon.tintColor = .white
+        temp.text = "\(Int(listItem.main.temp.rounded()))°"
+        temp.font = .boldSystemFont(ofSize: 18)
         
     }
     override func configureHierarchy() {
@@ -225,15 +247,18 @@ class MainViewController: BaseViewController {
         currentState.text = ""
         currentState.font = .boldSystemFont(ofSize: 20)
         
-        todayView.backgroundColor = .brown
+        todayView.layer.cornerRadius = 10
+        todayView.layer.borderColor = UIColor.white.cgColor
+        todayView.layer.borderWidth = 1
+        todayView.clipsToBounds = true
+        todayContentView.backgroundColor = .systemTeal
         todayViewTitle.text = "3시간 간격의 일기예보"
-        todayScrollView.backgroundColor = .systemRed
-        todayContentView.backgroundColor = .systemGreen
         
         weekViewTitle.text = "5일 간의 일기예보"
-        weekView.layer.cornerRadius = 5
+        weekView.layer.cornerRadius = 10
         weekView.layer.borderWidth = 1
         weekView.layer.borderColor = UIColor.white.cgColor
+        weekView.clipsToBounds = true
         
         mapButton.setImage(UIImage(systemName: "map"), for: .normal)
         searchButton.setImage(UIImage(systemName: "list.bullet"), for: .normal)
@@ -268,13 +293,14 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: WeekTableViewCell.id) as! WeekTableViewCell
         let data = dayList[indexPath.row]
-        let dateString = data.first?.dt_txt
+        let dateString = data.first?.dt_txt ?? ""
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        guard let date = dateFormatter.date(from: dateString!) else {
+        guard let date = dateFormatter.date(from: dateString) else {
             print("Invalid date format")
-            fatalError()
+            //fatalError()
+            return cell
         }
         dateFormatter.locale = Locale(identifier: "ko_KR")
         dateFormatter.dateFormat = "E"

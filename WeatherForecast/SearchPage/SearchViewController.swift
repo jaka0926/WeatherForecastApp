@@ -137,9 +137,4 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         selected?(data)
         navigationController?.popViewController(animated: true)
     }
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        
-    }
 }
