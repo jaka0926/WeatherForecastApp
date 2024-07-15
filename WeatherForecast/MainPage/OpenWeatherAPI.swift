@@ -39,16 +39,16 @@ struct Weather: Decodable {
 struct City: Decodable  {
     let id: Int
     let name: String
-    let coord: Coord
+//    let coord: Coord
     let country: String
     let population, timezone, sunrise, sunset: Int
 }
 
 // MARK: - Coord
-struct Coord: Decodable  {
-    let lat: Double
-    let lon: Int
-}
+//struct Coord: Decodable  {
+//    let lat: Double
+//    let lon: Int
+//}
 
 // MARK: - List
 struct List: Decodable  {
@@ -118,10 +118,10 @@ class OpenWeatherAPI {
                 
             switch response.result {
             case .success(let value):
-                print("SUCCESS")
+                print("SUCCESS+FORECAST")
                 completionHandler(value.list, nil)
             case .failure(let error):
-                print("FAILURE", error)
+                print("FAILURE=FORECAST", error)
                 completionHandler(nil, "잠시 후 다시 시도해주세요")
             }
         }

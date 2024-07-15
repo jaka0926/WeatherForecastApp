@@ -16,7 +16,6 @@ class MainViewController: BaseViewController {
     let regionName = UILabel()
     let currentTemp = UILabel()
     let currentState = UILabel()
-//    let todayTemp = UILabel()
     let todayView = UIView()
     let todayScrollView = UIScrollView()
     let todayContentView = UIStackView()
@@ -25,12 +24,12 @@ class MainViewController: BaseViewController {
     let tabBarView = UIView()
     let todayViewTitle = UILabel()
     let weekViewTitle = UILabel()
-    //let todayTableView = UITableView()
     let weekTableView = UITableView()
     let mapButton = UIButton()
     let searchButton = UIButton()
     var mapView = MKMapView()
     
+
     var currentWeatherData: CityList = CityList(id: 0, name: "Seoul", state: "", country: "", coord: Coordinations(lon: 127.0, lat: 37.583328))
     var list: [List] = []
     var currentList: WeatherCurrent = WeatherCurrent(weather: [], main: MainClass(temp: 0))
@@ -46,12 +45,11 @@ class MainViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        print(#function)
-        dump(currentWeatherData)
-        let lat = currentWeatherData.coord.lat
-        let lon = currentWeatherData.coord.lon
-        DispatchQueue.global().async {
-            OpenWeatherAPI.shared.weatherCurrentRequest(api: .weatherCurrent(lat: lat, lon: lon)) { json, error in
+        let currentLat = currentWeatherData.coord.lat
+        let currentLon = currentWeatherData.coord.lon
+        
+        DispatchQueue.global().async { [self] in
+            OpenWeatherAPI.shared.weatherCurrentRequest(api: .weatherCurrent(lat: currentLat, lon: currentLon)) { json, error in
                 if let error = error {
                     print(error) //사용자에게 상황 고지
                 }
@@ -59,24 +57,14 @@ class MainViewController: BaseViewController {
                     guard let data = json else {return}
                     self.currentList = data
                 }
+                self.regionName.text = self.currentWeatherData.name
                 self.currentTemp.text = String(format: "%.0f", self.currentList.main.temp.rounded()) + "°"
                 self.currentState.text = self.currentList.weather.first?.description
             }
-        }
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        weekTableView.rowHeight = 50
-        let lat = currentWeatherData.coord.lat
-        let lon = currentWeatherData.coord.lon
-        
-        let group = DispatchGroup() //+1
-        
-        group.enter() //+1
-        DispatchQueue.global().async(group: group) {
-            OpenWeatherAPI.shared.weatherForecastRequest(api: .weatherForecast(lat: lat, lon: lon)) { json, error in
+            
+            OpenWeatherAPI.shared.weatherForecastRequest(api: .weatherForecast(lat: currentLat, lon: currentLon)) { [self] json, error in
+                
+                //print(lat, lon)
                 if let error = error {
                     print(error) //사용자에게 상황 고지
                 }
@@ -84,40 +72,46 @@ class MainViewController: BaseViewController {
                     guard let data = json else {return}
                     self.list = data
                 }
-                group.leave()
+                today = self.list.filter { $0.dt_txt.contains(getDate.today) }
+                day2 = self.list.filter { $0.dt_txt.contains(getDate.day2) }
+                day3 = self.list.filter { $0.dt_txt.contains(getDate.day3) }
+                day4 = self.list.filter { $0.dt_txt.contains(getDate.day4) }
+                day5 = self.list.filter { $0.dt_txt.contains(getDate.day5) }
+                dayList = [today, day2, day3, day4, day5]
+                weekTableView.reloadData()
+                
+                configureMapView()
+            }
+        }
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        print(#function)
+        weekTableView.rowHeight = 50
+    
+        DispatchQueue.global().async {
+            OpenWeatherAPI.shared.weatherForecastRequest(api: .weatherForecast(lat: 37.583328, lon: 127.0)) { json, error in
+                if let error = error {
+                    print(error) //사용자에게 상황 고지
+                }
+                else {
+                    guard let data = json else {return}
+                    self.list = data
+                }
+                self.weekTableView.delegate = self
+                self.weekTableView.dataSource = self
+                self.weekTableView.register(WeekTableViewCell.self, forCellReuseIdentifier: WeekTableViewCell.id)
             }
         }
         
-        
-        
-        group.notify(queue: .main) { [self] in
-            print("List====", self.list.count)
-            self.weekTableView.reloadData()
+        addToStack()
+        addToStack()
+        addToStack()
+        addToStack()
+        addToStack()
+        addToStack()
             
-            self.weekTableView.delegate = self
-            self.weekTableView.dataSource = self
-            self.weekTableView.register(WeekTableViewCell.self, forCellReuseIdentifier: WeekTableViewCell.id)
-        
-            today = self.list.filter { $0.dt_txt.contains(getDate.today) }
-            day2 = self.list.filter { $0.dt_txt.contains(getDate.day2) }
-            day3 = self.list.filter { $0.dt_txt.contains(getDate.day3) }
-            day4 = self.list.filter { $0.dt_txt.contains(getDate.day4) }
-            day5 = self.list.filter { $0.dt_txt.contains(getDate.day5) }
-            
-            //dump(today)
-            self.addToStack()
-            self.addToStack()
-            self.addToStack()
-            self.addToStack()
-            self.addToStack()
-            self.addToStack()
-            
-            
-//            let tempData = today.map { Int($0.main.temp.rounded()) }
-//            print(tempData)
-//            todayTemp.text = "최고: \(tempData.max()!)° | 최저: \(String(format: "%.1f", tempData.min()!))°"
-            
-        }
     }
     func addToStack() {
         let label = UILabel()
@@ -136,7 +130,6 @@ class MainViewController: BaseViewController {
                 contentView.addSubview(regionName)
                 contentView.addSubview(currentTemp)
                 contentView.addSubview(currentState)
-//                contentView.addSubview(todayTemp)
                 contentView.addSubview(todayView)
                     todayView.addSubview(todayViewTitle)
                     todayView.addSubview(todayScrollView)
@@ -171,10 +164,6 @@ class MainViewController: BaseViewController {
             make.centerX.equalToSuperview()
             make.top.equalTo(currentTemp.snp.bottom).offset(5)
         }
-//        todayTemp.snp.makeConstraints { make in
-//            make.centerX.equalToSuperview()
-//            make.top.equalTo(currentState.snp.bottom).offset(5)
-//        }
         todayView.snp.makeConstraints { make in
             make.top.equalTo(currentState.snp.bottom).offset(50)
             make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(10)
@@ -227,7 +216,7 @@ class MainViewController: BaseViewController {
         tabBarView.backgroundColor = .systemOrange
         
         regionName.textColor = .white
-        regionName.text = "Seoul"
+        //regionName.text = "Seoul"
         regionName.font = .boldSystemFont(ofSize: 40)
         
         currentTemp.text = ""
@@ -252,17 +241,21 @@ class MainViewController: BaseViewController {
         todayContentView.axis = .horizontal
         todayContentView.spacing = 10
         
+        searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
+    }
+    func configureMapView() {
         let annotation = MKPointAnnotation()
-        let coordinate = CLLocationCoordinate2D(latitude: 37.583328, longitude: 127.0)
+        let coordinate = CLLocationCoordinate2D(latitude: currentWeatherData.coord.lat, longitude: currentWeatherData.coord.lon)
         annotation.coordinate = coordinate
-        annotation.title = "서울"
+        annotation.title = currentWeatherData.name
         mapView.addAnnotation(annotation)
         mapView.setRegion(MKCoordinateRegion(center: coordinate, span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)), animated: true)
-        
-        searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
     }
     @objc func searchButtonClicked() {
         let vc = SearchViewController()
+        vc.selected = { data in
+            self.currentWeatherData = data
+        }
         navigationController?.pushViewController(vc, animated: true)
     }
 }
@@ -290,7 +283,6 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         cell.dayLabel.text = indexPath.row == 0 ? "오늘" : day
         
         let tempData = data.map { Int($0.main.temp.rounded()) }
-        //print(indexPath.row, tempData)
         cell.minTemp.text = "최저 \(tempData.min()!)°"
         cell.maxTemp.text = "최고 \(tempData.max()!)°"
         

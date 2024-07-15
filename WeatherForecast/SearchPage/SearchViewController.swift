@@ -30,7 +30,8 @@ class SearchViewController: BaseViewController {
             tableView.reloadData()
         }
     }
-    var viewModel = MainViewController()
+    var vc = MainViewController()
+    var selected: ((CityList) -> Void)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,7 +99,6 @@ class SearchViewController: BaseViewController {
     }
     @objc func performSearch() {
         
-        
         guard let inputText = searchField.text?.lowercased(), inputText != "" else {
             filteredList = cityList
             return
@@ -132,7 +132,9 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         let data = filteredList[indexPath.row]
-        viewModel.currentWeatherData = data
+        print(#function, data)
+        //vc.currentWeatherData = data
+        selected?(data)
         navigationController?.popViewController(animated: true)
     }
     override func viewDidDisappear(_ animated: Bool) {
