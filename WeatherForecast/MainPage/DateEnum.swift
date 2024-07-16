@@ -13,7 +13,6 @@ func formatter(_ date: Date) -> String {
 }
 
 enum getDate {
-    
     static let today = formatter(Date())
     static let day2 = formatter(calendar.date(byAdding: .day, value: 1, to: Date())!)
     static let day3 = formatter(calendar.date(byAdding: .day, value: 2, to: Date())!)

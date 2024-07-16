@@ -25,12 +25,13 @@ class WeekTableViewCell: UITableViewCell {
         contentView.addSubview(weatherImage)
         
         dayLabel.snp.makeConstraints { make in
-            make.left.equalTo(contentView.safeAreaLayoutGuide).offset(10)
+            make.left.equalTo(contentView.safeAreaLayoutGuide).offset(20)
             make.verticalEdges.equalToSuperview()
         }
         weatherImage.snp.makeConstraints { make in
             make.right.equalTo(minTemp.snp.left).offset(-20)
-            make.size.equalTo(25)
+            make.height.equalToSuperview()
+            make.width.equalTo(weatherImage.snp.height)
             make.centerY.equalToSuperview()
         }
         minTemp.snp.makeConstraints { make in
@@ -38,16 +39,15 @@ class WeekTableViewCell: UITableViewCell {
             //make.verticalEdges.equalToSuperview()
         }
         maxTemp.snp.makeConstraints { make in
-            make.right.equalToSuperview().offset(-10)
+            make.right.equalToSuperview().offset(-20)
             make.verticalEdges.equalToSuperview()
         }
         
-        contentView.backgroundColor = .systemTeal
+        contentView.backgroundColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
         dayLabel.font = .systemFont(ofSize: 20)
         minTemp.font = .systemFont(ofSize: 20)
+        minTemp.textColor = .lightGray
         maxTemp.font = .systemFont(ofSize: 20)
-        weatherImage.image = UIImage(systemName: "cloud.rain.fill")
-        weatherImage.tintColor = .white
     }
     
     required init?(coder: NSCoder) {

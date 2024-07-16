@@ -7,18 +7,28 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 import MapKit
 
 class MainViewController: BaseViewController {
 
+    let bgImage = UIImageView()
     let scrollView = UIScrollView()
     let contentView = UIView()
     let regionName = UILabel()
     let currentTemp = UILabel()
     let currentState = UILabel()
     let todayView = UIView()
-    let todayScrollView = UIScrollView()
-    let todayContentView = UIStackView()
+    lazy var threeHourColView = UICollectionView(frame: .zero, collectionViewLayout: colViewLayout())
+    
+    func colViewLayout() -> UICollectionViewLayout {
+        let layout = UICollectionViewFlowLayout()
+        let height = UIScreen.main.bounds.height
+        layout.itemSize = CGSize(width: 80, height: height)
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = .zero
+        return layout
+    }
     let weekView = UIView()
     let weekScrollView = UIScrollView()
     let tabBarView = UIView()
@@ -70,12 +80,8 @@ class MainViewController: BaseViewController {
                     guard let data = json else {return}
                     list = data
                 }
-                for data in list {
-                    dump(data)
-                    
-                    self.addToStack(data)
-                }
-                
+
+                threeHourColView.reloadData()
                 today = list.filter { $0.dt_txt.contains(getDate.today) }
                 day2 = list.filter { $0.dt_txt.contains(getDate.day2) }
                 day3 = list.filter { $0.dt_txt.contains(getDate.day3) }
@@ -103,50 +109,19 @@ class MainViewController: BaseViewController {
                     guard let data = json else {return}
                     self.list = data
                 }
+                self.threeHourColView.delegate = self
+                self.threeHourColView.dataSource = self
+                self.threeHourColView.register(CollectionViewCell.self, forCellWithReuseIdentifier: CollectionViewCell.id)
+                
                 self.weekTableView.delegate = self
                 self.weekTableView.dataSource = self
                 self.weekTableView.register(WeekTableViewCell.self, forCellReuseIdentifier: WeekTableViewCell.id)
             }
         }
     }
-    func addToStack(_ listItem: List) {
-        let singleView = UIView()
-        let time = UILabel()
-        let weatherIcon = UIImageView()
-        let temp = UILabel()
-        singleView.addSubview(time)
-        singleView.addSubview(weatherIcon)
-        singleView.addSubview(temp)
-        todayContentView.addArrangedSubview(singleView)
-        
-        singleView.snp.makeConstraints { make in
-            make.width.equalTo(70)
-        }
-        time.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(20)
-            make.horizontalEdges.equalToSuperview()
-        }
-        weatherIcon.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.size.equalTo(40)
-        }
-        temp.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-20)
-        }
-        let rawDate = listItem.dt_txt
-        let startIndex = rawDate.index(rawDate.startIndex, offsetBy: 11)
-        let endIndex = rawDate.index(rawDate.startIndex, offsetBy: 13)
-        let hourSubstring = rawDate[startIndex..<endIndex]
-        time.text = "\(hourSubstring)시"
-        time.textAlignment = .center
-        weatherIcon.image = UIImage(systemName: "sun.max.fill")
-        weatherIcon.tintColor = .white
-        temp.text = "\(Int(listItem.main.temp.rounded()))°"
-        temp.font = .boldSystemFont(ofSize: 18)
-        
-    }
+
     override func configureHierarchy() {
+        view.addSubview(bgImage)
         view.addSubview(scrollView)
             scrollView.addSubview(contentView)
                 contentView.addSubview(regionName)
@@ -154,8 +129,7 @@ class MainViewController: BaseViewController {
                 contentView.addSubview(currentState)
                 contentView.addSubview(todayView)
                     todayView.addSubview(todayViewTitle)
-                    todayView.addSubview(todayScrollView)
-                    todayScrollView.addSubview(todayContentView)
+                    todayView.addSubview(threeHourColView)
                 contentView.addSubview(weekView)
                     weekView.addSubview(weekViewTitle)
                     weekView.addSubview(weekTableView)
@@ -165,6 +139,9 @@ class MainViewController: BaseViewController {
             tabBarView.addSubview(searchButton)
     }
     override func configureLayout() {
+        bgImage.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
         scrollView.snp.makeConstraints { make in
             make.top.horizontalEdges.equalToSuperview()
             make.bottom.equalToSuperview().offset(-60)
@@ -200,14 +177,11 @@ class MainViewController: BaseViewController {
             make.top.left.equalToSuperview().inset(10)
             make.height.equalTo(20)
         }
-        todayScrollView.snp.makeConstraints { make in
-            make.top.equalTo(todayViewTitle.snp.bottom).offset(10)
+        threeHourColView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(40)
             make.horizontalEdges.bottom.equalToSuperview()
         }
-        todayContentView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.height.equalToSuperview()
-        }
+            
         weekViewTitle.snp.makeConstraints { make in
             make.top.left.equalToSuperview().inset(10)
             make.height.equalTo(20)
@@ -234,11 +208,13 @@ class MainViewController: BaseViewController {
         }
     }
     override func configureUI() {
-        scrollView.backgroundColor = .systemIndigo
+        
+        bgImage.image = UIImage(named: "bgImage")
+        bgImage.contentMode = .scaleAspectFill
+        scrollView.backgroundColor = .black.withAlphaComponent(0.5)
         tabBarView.backgroundColor = .systemOrange
         
         regionName.textColor = .white
-        //regionName.text = "Seoul"
         regionName.font = .boldSystemFont(ofSize: 40)
         
         currentTemp.text = ""
@@ -251,20 +227,20 @@ class MainViewController: BaseViewController {
         todayView.layer.borderColor = UIColor.white.cgColor
         todayView.layer.borderWidth = 1
         todayView.clipsToBounds = true
-        todayContentView.backgroundColor = .systemTeal
         todayViewTitle.text = "3시간 간격의 일기예보"
+        threeHourColView.backgroundColor = .clear
         
         weekViewTitle.text = "5일 간의 일기예보"
         weekView.layer.cornerRadius = 10
         weekView.layer.borderWidth = 1
         weekView.layer.borderColor = UIColor.white.cgColor
         weekView.clipsToBounds = true
+        weekView.backgroundColor = .lightGray.withAlphaComponent(0.2)
         
         mapButton.setImage(UIImage(systemName: "map"), for: .normal)
         searchButton.setImage(UIImage(systemName: "list.bullet"), for: .normal)
         
-        todayContentView.axis = .horizontal
-        todayContentView.spacing = 10
+        todayView.backgroundColor = .lightGray.withAlphaComponent(0.2)
         
         searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
     }
@@ -299,7 +275,6 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         guard let date = dateFormatter.date(from: dateString) else {
             print("Invalid date format")
-            //fatalError()
             return cell
         }
         dateFormatter.locale = Locale(identifier: "ko_KR")
@@ -311,6 +286,36 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         let tempData = data.map { Int($0.main.temp.rounded()) }
         cell.minTemp.text = "최저 \(tempData.min()!)°"
         cell.maxTemp.text = "최고 \(tempData.max()!)°"
+        
+        let icon = data.first?.weather.first?.icon
+        let url = URL(string: "https://openweathermap.org/img/wn/\(icon!)@2x.png")
+        cell.weatherImage.kf.setImage(with: url)
+        
+        return cell
+    }
+}
+
+extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        list.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CollectionViewCell.id, for: indexPath) as! CollectionViewCell
+        let data = list[indexPath.row]
+        
+        let rawDate = data.dt_txt
+        let startIndex = rawDate.index(rawDate.startIndex, offsetBy: 11)
+        let endIndex = rawDate.index(rawDate.startIndex, offsetBy: 13)
+        let hourSubstring = rawDate[startIndex..<endIndex]
+        
+
+        cell.colCelltime.text = "\(hourSubstring)시"
+        let icon = data.weather.first?.icon
+        let url = URL(string: "https://openweathermap.org/img/wn/\(icon!)@2x.png")
+        
+        cell.colCellweatherIcon.kf.setImage(with: url)
+        cell.colCelltemp.text = "\(Int(data.main.temp.rounded()))°"
         
         return cell
     }
