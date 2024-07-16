@@ -37,6 +37,8 @@ class MainViewController: BaseViewController {
     let weekTableView = UITableView()
     let mapButton = UIButton()
     let searchButton = UIButton()
+    let locationView = UIView()
+    let locationLabel = UILabel()
     var mapView = MKMapView()
     
     var currentWeatherData: CityList = CityList(id: 0, name: "Seoul", state: "", country: "", coord: Coordinations(lon: 127.0, lat: 37.583328))
@@ -133,7 +135,9 @@ class MainViewController: BaseViewController {
                 contentView.addSubview(weekView)
                     weekView.addSubview(weekViewTitle)
                     weekView.addSubview(weekTableView)
-                contentView.addSubview(mapView)
+                contentView.addSubview(locationView)
+                    locationView.addSubview(mapView)
+                    locationView.addSubview(locationLabel)
         view.addSubview(tabBarView)
             tabBarView.addSubview(mapButton)
             tabBarView.addSubview(searchButton)
@@ -153,7 +157,7 @@ class MainViewController: BaseViewController {
         }
         regionName.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(50)
+            make.top.equalToSuperview().offset(30)
         }
         currentTemp.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -181,7 +185,6 @@ class MainViewController: BaseViewController {
             make.top.equalToSuperview().offset(40)
             make.horizontalEdges.bottom.equalToSuperview()
         }
-            
         weekViewTitle.snp.makeConstraints { make in
             make.top.left.equalToSuperview().inset(10)
             make.height.equalTo(20)
@@ -200,11 +203,18 @@ class MainViewController: BaseViewController {
         searchButton.snp.makeConstraints { make in
             make.right.top.equalToSuperview().inset(20)
         }
-        mapView.snp.makeConstraints { make in
-            make.top.equalTo(weekView.snp.bottom).offset(10)
+        locationView.snp.makeConstraints { make in
+            make.top.equalTo(weekView.snp.bottom).offset(20)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(10)
             make.height.equalTo(300)
             make.bottom.equalTo(contentView).offset(-10)
+        }
+        locationLabel.snp.makeConstraints { make in
+            make.top.left.equalToSuperview().inset(10)
+        }
+        mapView.snp.makeConstraints { make in
+            make.top.equalTo(locationLabel.snp.bottom).offset(10)
+            make.horizontalEdges.bottom.equalToSuperview().inset(10)
         }
     }
     override func configureUI() {
@@ -227,6 +237,7 @@ class MainViewController: BaseViewController {
         todayView.layer.borderColor = UIColor.white.cgColor
         todayView.layer.borderWidth = 1
         todayView.clipsToBounds = true
+        todayView.backgroundColor = .lightGray.withAlphaComponent(0.2)
         todayViewTitle.text = "3시간 간격의 일기예보"
         threeHourColView.backgroundColor = .clear
         
@@ -240,7 +251,12 @@ class MainViewController: BaseViewController {
         mapButton.setImage(UIImage(systemName: "map"), for: .normal)
         searchButton.setImage(UIImage(systemName: "list.bullet"), for: .normal)
         
-        todayView.backgroundColor = .lightGray.withAlphaComponent(0.2)
+        locationView.backgroundColor = .lightGray.withAlphaComponent(0.2)
+        locationView.layer.cornerRadius = 10
+        locationView.layer.borderWidth = 1
+        locationView.layer.borderColor = UIColor.white.cgColor
+        locationView.clipsToBounds = true
+        locationLabel.text = "위치"
         
         searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
     }
