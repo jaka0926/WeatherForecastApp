@@ -8,17 +8,17 @@
 struct WeatherCurrent: Decodable {
     //let coord: Coord
     let weather: [WeatherData]
-    //let base: String
+    let base: String
     let main: MainClass
-//    let visibility: Int
-//    let wind: Wind
-//    let rain: Rain
-//    let clouds: Clouds
-//    let dt: Int
-//    let sys: Sys
-//    let timezone, id: Int
-//    let name: String
-//    let cod: Int
+    //let visibility: Int
+    let wind: Wind
+    //let rain: Rain
+    let clouds: Clouds
+    //let dt: Int
+    //let sys: Sys
+    //let timezone, id: Int
+    let name: String
+    //let cod: Int
 }
 
 // MARK: - Weather
@@ -29,10 +29,7 @@ struct WeatherData: Decodable {
 
 // MARK: - Weather
 struct Weather: Decodable {
-    let cod: String
-    let message, cnt: Int
     let list: [List]
-    let city: City
 }
 
 // MARK: - City
@@ -57,10 +54,10 @@ struct List: Decodable  {
     let weather: [WeatherElement]
     let clouds: Clouds
     let wind: Wind
-    let visibility: Int
+//    let visibility: Int
     let pop: Double
-    //let rain: Rain?
-    let sys: Sys
+//    let rain: Rain?
+//    let sys: Sys
     let dt_txt: String
 }
 
@@ -73,8 +70,10 @@ struct Clouds: Decodable  {
 struct MainClass: Decodable  {
     let temp: Double
     //let feels_like, temp_min, temp_max: Double
-    //let pressure, sea_level, grnd_level, humidity: Int
-    //let temp_kf: Double?
+    let pressure: Int
+    let humidity: Int
+        //sea_level, grnd_level: Int
+//    let temp_kf: Double?
 }
 
 // MARK: - Rain
@@ -98,8 +97,6 @@ struct WeatherElement: Decodable  {
 // MARK: - Wind
 struct Wind: Decodable  {
     let speed: Double
-    let deg: Int
-    let gust: Double
 }
 
 import Alamofire

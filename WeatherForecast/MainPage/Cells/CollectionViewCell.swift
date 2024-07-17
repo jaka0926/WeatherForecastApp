@@ -35,7 +35,7 @@ class CollectionViewCell: UICollectionViewCell {
             make.centerY.equalToSuperview().offset(50)
         }
         
-        contentView.backgroundColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
+        contentView.backgroundColor = .clear
         colCelltemp.font = .systemFont(ofSize: 16)
         colCelltemp.font = .boldSystemFont(ofSize: 18)
 

@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import Kingfisher
 import MapKit
-
+//MARK: MainViewController Class
 class MainViewController: BaseViewController {
 
     let bgImage = UIImageView()
@@ -37,13 +37,10 @@ class MainViewController: BaseViewController {
     let weekTableView = UITableView()
     let mapButton = UIButton()
     let searchButton = UIButton()
-    let locationView = UIView()
-    let locationLabel = UILabel()
-    var mapView = MKMapView()
     
     var currentWeatherData: CityList = CityList(id: 0, name: "Seoul", state: "", country: "", coord: Coordinations(lon: 127.0, lat: 37.583328))
     var list: [List] = []
-    var currentList: WeatherCurrent = WeatherCurrent(weather: [], main: MainClass(temp: 0))
+    var currentList: WeatherCurrent = WeatherCurrent(weather: [], base: "", main: MainClass(temp: 0, pressure: 0, humidity: 0), wind: Wind.init(speed: 0), clouds: Clouds(all: 0), name: "")
     
     let calendar = Calendar.current
     var today: [List] = []
@@ -53,6 +50,23 @@ class MainViewController: BaseViewController {
     var day5: [List] = []
     lazy var dayList = [today, day2, day3, day4, day5]
     
+    let locationView = UIView()
+    let locationLabel = UILabel()
+    var mapView = MKMapView()
+    lazy var bottomColView = UICollectionView(frame: .zero, collectionViewLayout: bottomColViewLayout())
+    
+    func bottomColViewLayout() -> UICollectionViewLayout {
+        let layout = UICollectionViewFlowLayout()
+        
+        let width = UIScreen.main.bounds.width - 30
+        print("height = ", UIScreen.main.bounds.height)
+        print("width = ", UIScreen.main.bounds.width)
+        layout.itemSize = CGSize(width: width/2, height: width/2)
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 10
+        return layout
+    }
+//MARK: ViewWillAppear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -91,12 +105,12 @@ class MainViewController: BaseViewController {
                 day5 = list.filter { $0.dt_txt.contains(getDate.day5) }
                 dayList = [today, day2, day3, day4, day5]
                 weekTableView.reloadData()
-                
+                bottomColView.reloadData()
                 configureMapView()
             }
         }
     }
-    
+//MARK: ViewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
         print(#function)
@@ -118,10 +132,14 @@ class MainViewController: BaseViewController {
                 self.weekTableView.delegate = self
                 self.weekTableView.dataSource = self
                 self.weekTableView.register(WeekTableViewCell.self, forCellReuseIdentifier: WeekTableViewCell.id)
+                
+                self.bottomColView.delegate = self
+                self.bottomColView.dataSource = self
+                self.bottomColView.register(BottomCollectionViewCell.self, forCellWithReuseIdentifier: BottomCollectionViewCell.id)
             }
         }
     }
-
+//MARK: configureHierarchy
     override func configureHierarchy() {
         view.addSubview(bgImage)
         view.addSubview(scrollView)
@@ -138,10 +156,12 @@ class MainViewController: BaseViewController {
                 contentView.addSubview(locationView)
                     locationView.addSubview(mapView)
                     locationView.addSubview(locationLabel)
+                contentView.addSubview(bottomColView)
         view.addSubview(tabBarView)
             tabBarView.addSubview(mapButton)
             tabBarView.addSubview(searchButton)
     }
+//MARK: configureLayout
     override func configureLayout() {
         bgImage.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -207,7 +227,6 @@ class MainViewController: BaseViewController {
             make.top.equalTo(weekView.snp.bottom).offset(20)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(10)
             make.height.equalTo(300)
-            make.bottom.equalTo(contentView).offset(-10)
         }
         locationLabel.snp.makeConstraints { make in
             make.top.left.equalToSuperview().inset(10)
@@ -216,7 +235,14 @@ class MainViewController: BaseViewController {
             make.top.equalTo(locationLabel.snp.bottom).offset(10)
             make.horizontalEdges.bottom.equalToSuperview().inset(10)
         }
+        bottomColView.snp.makeConstraints { make in
+            make.top.equalTo(locationView.snp.bottom).offset(20)
+            make.horizontalEdges.equalTo(locationView)
+            make.height.equalTo(bottomColView.snp.width)
+            make.bottom.equalToSuperview().inset(10)
+        }
     }
+//MARK: configureUI
     override func configureUI() {
         
         bgImage.image = UIImage(named: "bgImage")
@@ -247,6 +273,7 @@ class MainViewController: BaseViewController {
         weekView.layer.borderColor = UIColor.white.cgColor
         weekView.clipsToBounds = true
         weekView.backgroundColor = .lightGray.withAlphaComponent(0.2)
+        weekTableView.backgroundColor = .clear
         
         mapButton.setImage(UIImage(systemName: "map"), for: .normal)
         searchButton.setImage(UIImage(systemName: "list.bullet"), for: .normal)
@@ -257,6 +284,8 @@ class MainViewController: BaseViewController {
         locationView.layer.borderColor = UIColor.white.cgColor
         locationView.clipsToBounds = true
         locationLabel.text = "위치"
+        
+        bottomColView.backgroundColor = .clear
         
         searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
     }
@@ -276,7 +305,7 @@ class MainViewController: BaseViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
 }
-
+//MARK: TableView
 extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 5
@@ -310,13 +339,33 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
 }
-
+//MARK: CollectionView
 extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        list.count
+        
+        return collectionView == threeHourColView ? list.count : 4
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        if collectionView == bottomColView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BottomCollectionViewCell.id, for: indexPath) as! BottomCollectionViewCell
+            lazy var data: [String] = ["", "", ""]
+            
+            switch indexPath.row {
+            case 0: data = ["wind", "바람 속도", "\(currentList.wind.speed)m/s"]
+            case 1: data = ["drop.fill", "구름", "\(currentList.clouds.all)%"]
+            case 2: data = ["thermometer.medium", "기압", "\(currentList.main.pressure)\nhpa"]
+            case 3: data = ["humidity.fill", "습도", "\(currentList.main.humidity)%"]
+            default: print("Bottom ColView Error")
+            }
+            cell.icon.image = UIImage(systemName: data[0])
+            cell.title.text = data[1]
+            cell.textContent.text = data[2]
+            
+            return cell
+        }
+        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CollectionViewCell.id, for: indexPath) as! CollectionViewCell
         let data = list[indexPath.row]
         
@@ -335,4 +384,5 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
         
         return cell
     }
+    
 }
