@@ -66,6 +66,44 @@ class MainViewController: BaseViewController {
         layout.minimumLineSpacing = 10
         return layout
     }
+    
+//    let toolBarHeight: CGFloat = 60
+    var toolBar = UIToolbar()
+        // Decide the size of the toolbar.
+//        let tb = UIToolbar(frame: CGRect(x: 0, y: view.bounds.size.height - toolBarHeight, width: view.bounds.size.width, height: 20.0))
+//        
+//        tb.layer.position = CGPoint(x: self.view.bounds.width/2, y: self.view.bounds.height-20.0)
+//        
+//        Decide the color of the toolbar.
+//        tb.tintColor = .white
+//        tb.backgroundColor = .black
+        
+//        return tb
+//    }()
+    
+//    var barButtonMap: UIBarButtonItem = {
+//        let b: UIBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "Map"), style: .plain, target: MainViewController.self, action: #selector(barButtonClicked(sender:)))
+//            b.tag = 1
+//            
+//            return b
+//        }()
+//        
+//    var barButtonCityList: UIBarButtonItem = {
+//        let b: UIBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "List.fill"), style:.plain, target: MainViewController.self, action: #selector(barButtonClicked(sender:)))
+//            b.tag = 2
+//            
+//            return b
+//        }()
+    @objc func barButtonClicked(sender: UIBarButtonItem) {
+            switch sender.tag {
+            case 1:
+                print("map clicked")
+            case 2:
+                print("cityList clicked")
+            default:
+                return
+            }
+        }
 //MARK: ViewWillAppear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -109,6 +147,7 @@ class MainViewController: BaseViewController {
                 configureMapView()
             }
         }
+        
     }
 //MARK: ViewDidLoad
     override func viewDidLoad() {
@@ -138,6 +177,10 @@ class MainViewController: BaseViewController {
                 self.bottomColView.register(BottomCollectionViewCell.self, forCellWithReuseIdentifier: BottomCollectionViewCell.id)
             }
         }
+        toolBar.translatesAutoresizingMaskIntoConstraints = false
+        let barButtonMap = UIBarButtonItem(image: UIImage(systemName: "star"), style: .plain, target: self, action: #selector(barButtonClicked(sender:)))
+        barButtonMap.tag = 1
+        toolBar.setItems([barButtonMap], animated: true)
     }
 //MARK: configureHierarchy
     override func configureHierarchy() {
@@ -157,9 +200,9 @@ class MainViewController: BaseViewController {
                     locationView.addSubview(mapView)
                     locationView.addSubview(locationLabel)
                 contentView.addSubview(bottomColView)
-        view.addSubview(tabBarView)
-            tabBarView.addSubview(mapButton)
-            tabBarView.addSubview(searchButton)
+        view.addSubview(toolBar)
+//            tabBarView.addSubview(mapButton)
+//            tabBarView.addSubview(searchButton)
     }
 //MARK: configureLayout
     override func configureLayout() {
@@ -213,16 +256,16 @@ class MainViewController: BaseViewController {
             make.top.equalTo(weekViewTitle.snp.bottom).offset(10)
             make.horizontalEdges.bottom.equalToSuperview()
         }
-        tabBarView.snp.makeConstraints { make in
-            make.top.equalTo(scrollView.snp.bottom)
-            make.horizontalEdges.bottom.equalToSuperview()
-        }
-        mapButton.snp.makeConstraints { make in
-            make.left.top.equalToSuperview().inset(20)
-        }
-        searchButton.snp.makeConstraints { make in
-            make.right.top.equalToSuperview().inset(20)
-        }
+//        tabBarView.snp.makeConstraints { make in
+//            make.top.equalTo(scrollView.snp.bottom)
+//            make.horizontalEdges.bottom.equalToSuperview()
+//        }
+//        mapButton.snp.makeConstraints { make in
+//            make.left.top.equalToSuperview().inset(20)
+//        }
+//        searchButton.snp.makeConstraints { make in
+//            make.right.top.equalToSuperview().inset(20)
+//        }
         locationView.snp.makeConstraints { make in
             make.top.equalTo(weekView.snp.bottom).offset(20)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(10)
@@ -240,6 +283,11 @@ class MainViewController: BaseViewController {
             make.horizontalEdges.equalTo(locationView)
             make.height.equalTo(bottomColView.snp.width)
             make.bottom.equalToSuperview().inset(10)
+        }
+        toolBar.snp.makeConstraints { make in
+            make.bottom.equalToSuperview()
+            make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(60)
         }
     }
 //MARK: configureUI
