@@ -4,6 +4,9 @@
 //
 //  Created by Jaka on 2024-07-14.
 //
+import UIKit
+import SnapKit
+
 struct CityList : Codable {
     let id: Int
     let name: String
@@ -15,9 +18,6 @@ struct Coordinations: Codable {
     let lon: Double
     let lat: Double
 }
-
-import UIKit
-import SnapKit
 
 class SearchViewController: BaseViewController {
     
@@ -36,6 +36,7 @@ class SearchViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationController?.toolbar.isHidden = true
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(SearchTableViewCell.self, forCellReuseIdentifier: SearchTableViewCell.id)
@@ -130,10 +131,8 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
         let data = filteredList[indexPath.row]
         print(#function, data)
-        //vc.currentWeatherData = data
         selected?(data)
         navigationController?.popViewController(animated: true)
     }

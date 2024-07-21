@@ -4,6 +4,8 @@
 //
 //  Created by Jaka on 2024-07-13.
 //
+import Alamofire
+
 // MARK: - WeatherCurrent
 struct WeatherCurrent: Decodable {
     //let coord: Coord
@@ -98,8 +100,6 @@ struct WeatherElement: Decodable  {
 struct Wind: Decodable  {
     let speed: Double
 }
-
-import Alamofire
 
 class OpenWeatherAPI {
     

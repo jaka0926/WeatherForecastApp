@@ -35,8 +35,6 @@ class MainViewController: BaseViewController {
     let todayViewTitle = UILabel()
     let weekViewTitle = UILabel()
     let weekTableView = UITableView()
-    let mapButton = UIButton()
-    let searchButton = UIButton()
     
     var currentWeatherData: CityList = CityList(id: 0, name: "Seoul", state: "", country: "", coord: Coordinations(lon: 127.0, lat: 37.583328))
     var list: [List] = []
@@ -70,6 +68,7 @@ class MainViewController: BaseViewController {
 //MARK: ViewWillAppear
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.toolbar.isHidden = false
         
         let currentLat = currentWeatherData.coord.lat
         let currentLon = currentWeatherData.coord.lon
@@ -86,6 +85,7 @@ class MainViewController: BaseViewController {
                 regionName.text = self.currentWeatherData.name
                 currentTemp.text = String(format: "%.0f", self.currentList.main.temp.rounded()) + "°"
                 currentState.text = currentList.weather.first?.description
+                scrollView.scrollRectToVisible(CGRect(origin: .zero, size: scrollView.bounds.size), animated: true)
             }
             
             OpenWeatherAPI.shared.weatherForecastRequest(api: .weatherForecast(lat: currentLat, lon: currentLon)) { [self] json, error in
@@ -147,17 +147,20 @@ class MainViewController: BaseViewController {
         toolBar.backgroundColor = .darkGray.withAlphaComponent(0.5)
         navigationController?.toolbar.scrollEdgeAppearance = toolBar
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let mapButton = UIBarButtonItem(image: UIImage(systemName: "map"), style: .plain, target: self, action: #selector(mapButtonTapped))
-        let searchButton = UIBarButtonItem(image: UIImage(systemName: "list.bullet"), style: .plain, target: self, action: #selector(searchButtonTapped))
+        let mapButton = UIBarButtonItem(image: UIImage(systemName: "map"), style: .plain, target: self, action: #selector(mapButtonClicked))
+        let searchButton = UIBarButtonItem(image: UIImage(systemName: "list.bullet"), style: .plain, target: self, action: #selector(searchButtonClicked))
         toolbarItems = [mapButton, flexibleSpace, searchButton]
     }
-    @objc private func mapButtonTapped(){
-//        let vc = MapViewController()
-//        navigationController?.pushViewController(vc, animated: true)
+    @objc private func mapButtonClicked(){
+        let vc = MapViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
     
-    @objc private func searchButtonTapped(){
+    @objc func searchButtonClicked() {
         let vc = SearchViewController()
+        vc.selected = { data in
+            self.currentWeatherData = data
+        }
         navigationController?.pushViewController(vc, animated: true)
     }
 //MARK: configureHierarchy
@@ -283,9 +286,6 @@ class MainViewController: BaseViewController {
         weekView.backgroundColor = .lightGray.withAlphaComponent(0.2)
         weekTableView.backgroundColor = .clear
         
-        mapButton.setImage(UIImage(systemName: "map"), for: .normal)
-        searchButton.setImage(UIImage(systemName: "list.bullet"), for: .normal)
-        
         locationView.backgroundColor = .lightGray.withAlphaComponent(0.2)
         locationView.layer.cornerRadius = 10
         locationView.layer.borderWidth = 1
@@ -294,8 +294,6 @@ class MainViewController: BaseViewController {
         locationLabel.text = "위치"
         
         bottomColView.backgroundColor = .clear
-        
-        searchButton.addTarget(self, action: #selector(searchButtonClicked), for: .touchUpInside)
     }
     func configureMapView() {
         let annotation = MKPointAnnotation()
@@ -305,13 +303,7 @@ class MainViewController: BaseViewController {
         mapView.addAnnotation(annotation)
         mapView.setRegion(MKCoordinateRegion(center: coordinate, span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)), animated: true)
     }
-    @objc func searchButtonClicked() {
-        let vc = SearchViewController()
-        vc.selected = { data in
-            self.currentWeatherData = data
-        }
-        navigationController?.pushViewController(vc, animated: true)
-    }
+    
 }
 //MARK: TableView
 extension MainViewController: UITableViewDelegate, UITableViewDataSource {
